@@ -1,0 +1,34 @@
+@nestjs/config
+class-validator
+class-transformer
+@nestjs/typeorm
+typeorm
+pg
+@nestjs/jwt
+@nestjs/passport
+passport
+passport-jwt
+bcrypt
+nestjs-pino
+pino
+pino-pretty
+helmet
+@nestjs/throttler
+@nestjs/swagger
+swagger-ui-express
+
+#install command
+#cat requirements.txt | xargs npm install
+
+
+#dev
+
+prettier
+eslint
+husky
+lint-staged
+@types/passport-jwt
+@types/bcrypt
+
+#development install command
+#grep dev -v requirements.txt | xargs npm install -D
