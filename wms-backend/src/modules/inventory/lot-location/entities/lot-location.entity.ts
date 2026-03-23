@@ -2,7 +2,7 @@ import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGenerat
 import { Lot } from "../../lot/entities/lot.entity";
 import { Rack } from "../../rack/entities/rack.entity";
 
-@Entity('lot_locations')
+@Entity('lot-locations')
 @Unique(['lotId','rackId'])
 export class LotLocation{
 
