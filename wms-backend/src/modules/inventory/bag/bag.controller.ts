@@ -1,5 +1,11 @@
 
-import { Controller } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
+import { BagService } from './bag.service';
 
-@Controller('bag')
-export class BagController {}
+@Controller('bags')
+export class BagController {
+
+
+
+  }
+
