@@ -2,4 +2,6 @@
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class LevelService {}
+export class LevelService {
+    
+}
