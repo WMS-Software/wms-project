@@ -2,7 +2,6 @@
 import { Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from 'typeorm';
 import { Level } from '../../level/entities/level.entity';
 
-@Index()
 @Entity('chambers')
 @Unique(['levelId','chamberNumber'])
 export class Chamber {
@@ -21,6 +20,9 @@ export class Chamber {
 
   @Column()
   levelId !: string;
+
+  @Column({ default: true })
+  isActive!: boolean;
 
   @ManyToOne(()=> Level)
   @JoinColumn({name: 'levelId'})

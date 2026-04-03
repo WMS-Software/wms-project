@@ -14,8 +14,4 @@ export class CreateChamberDto {
   @IsNotEmpty()
   @IsNumber()
   maxTemperature!: number;
-
-  @IsNotEmpty()
-  @IsString()
-  levelId!: string;
 }

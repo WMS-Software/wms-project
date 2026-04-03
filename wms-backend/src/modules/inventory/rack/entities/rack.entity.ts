@@ -12,6 +12,9 @@ export class Rack {
   @Column()
   rackNumber !: number;
 
+  @Column({ default: true })
+  isActive!: boolean;
+
   @Column()
   chamberId !: string;
 

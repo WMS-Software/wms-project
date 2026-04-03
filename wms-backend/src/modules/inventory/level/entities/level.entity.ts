@@ -1,8 +1,9 @@
 
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from 'typeorm';
 import { Warehouse } from '../../warehouse/entities/warehouse.entity';
 
 @Entity('level')
+@Unique(['warehouseId', 'levelNumber'])
 export class Level {
 
   @PrimaryGeneratedColumn('uuid')
@@ -13,6 +14,9 @@ export class Level {
 
   @Column()
   warehouseId!: string;
+
+  @Column({ default: true })
+  isActive!: boolean;
 
   @ManyToOne(()=> Warehouse)
   @JoinColumn({name: 'warehouseId'})
