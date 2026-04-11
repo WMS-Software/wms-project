@@ -11,17 +11,17 @@ import { ConfigModule, ConfigService } from '@nestjs/config'
   }),
     TypeOrmModule.forRootAsync({
   useFactory: (configService: ConfigService) => ({
-    
     type: 'postgres',
     host: configService.get<string>('DB_HOST'),
     port: Number(configService.get<string>('DB_PORT')),
     username: configService.get<string>('DB_USERNAME'),
     password: configService.get<string>('DB_PASSWORD'),
     database: configService.get<string>('DB_DATABASE'),
-    //entities: [__dirname+ '/**/*.entity{.ts,.js}'],
+    // entities: [__dirname+ '/**/*.entity{.ts,.js}'],    // we will use in prod but for now we use autoload
     autoLoadEntities: true,
     synchronize: configService.get<string>('DB_SYNC') === 'true',
-    logging: true
+    logging: true,
+  
   }),
   inject: [ConfigService],
 }),
