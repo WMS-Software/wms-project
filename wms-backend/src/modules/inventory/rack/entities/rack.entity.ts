@@ -1,10 +1,7 @@
 
-import { Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('rack')
+@Entity('racks')
 export class Rack {
-
-  @PrimaryGeneratedColumn()
-  id: number;
-
 }
+

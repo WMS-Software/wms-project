@@ -2,6 +2,7 @@
 import {  Column, CreateDateColumn, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { BagStatus } from './bag_status.enum';
 import { Lot } from '../../lot/entities/lot.entity';
+import { Rack } from '../../rack/entities/rack.entity';
 
 @Index([ 'lotId', 'status'])                               // GIVE INDEX TO BOTH
 @Index([ 'lotId', 'serial'],{ unique: true })                               // GIVE INDEX TO BOTH
@@ -9,46 +10,53 @@ import { Lot } from '../../lot/entities/lot.entity';
 export class Bag {
 
   @PrimaryGeneratedColumn('uuid')
-  id: string;                                               // BAG ID
+  id !: string;                                               // BAG ID
 
   @Column({unique: true})
-  bagCode: string;
+  bagCode !: string;
 
   @Column()
-  serial: number;
+  serial !: number;
 
   @Column()
-  lotId: string;                                            // FK LOT 
+  lotId !: string;                                            // FK LOT 
 
   // @ManyToOne(() => Lot, {nullable:false})
   // @JoinColumn({name: 'lotId'})                   // write now i dont have lot table we use this to acces lot id from lot table   
   // lot: Lot;
 
   @Column({unique: true})
-  barcode: string;
+  barcode !: string;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt !: Date;
 
   @Column({
     type: 'timestamp',
     nullable: true
   })
-  dispatchedAt: Date;
+  dispatchedAt !: Date;
 
   
   @Column({
     type: 'timestamp',
     nullable: true
   })
-  cancelledAt: Date;
+  cancelledAt !: Date;
 
   @Column({
     type: 'enum',
     enum: BagStatus,
     enumName: 'bag_status_enum',       
-    default: BagStatus.stored
+    default: BagStatus.pending
   })
-  status: BagStatus;
+  status !: BagStatus;
+
+  @ManyToOne(() => Rack, {nullable: true})
+  @JoinColumn({name: 'rackId'})
+  rack ?: Rack;
+
+  @Column({nullable: true})
+  rackId ?: string;
 
 }

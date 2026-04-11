@@ -1,5 +1,8 @@
 
-import { Controller } from '@nestjs/common';
+import { Controller, Post } from '@nestjs/common';
+
 
 @Controller('rack')
-export class RackController {}
+export class RackController {
+
+}

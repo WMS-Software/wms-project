@@ -5,9 +5,9 @@ import { Column, Entity, PrimaryColumn } from "typeorm";
 export class LotCounter {
 
     @PrimaryColumn()
-    lotId: string;
+    lotId !: string;
 
     @Column({type: 'int', default: 0}) 
-    currentSerial: number;
+    currentSerial !: number;
 
 }

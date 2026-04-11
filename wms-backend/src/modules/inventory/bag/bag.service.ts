@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Bag } from './entities/bag.entity';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LotCounter } from './entities/lot_counter.entity';
+import { BagStatus } from './entities/bag_status.enum';
+import { Rack } from '../rack/entities/rack.entity';
 
 @Injectable()
 export class BagService {
@@ -12,6 +14,9 @@ export class BagService {
 
     @InjectRepository(LotCounter)
     private lotCounterRepo: Repository<LotCounter>,
+
+    @InjectRepository(Rack)
+    private rackRepository: Repository<Rack>,
 
     private dataSource: DataSource,
   ) {}
@@ -82,4 +87,55 @@ export class BagService {
       return bags;
     });
   }
+
+  async scanBag(barcode: string, rackId: string) {
+    return await this.dataSource.transaction(async (manager) => {
+      const bagRepo = manager.getRepository(Bag);
+      const rackRepo = manager.getRepository(Rack);
+
+      const bag = await bagRepo.findOne({
+        where: {barcode},
+        lock: {mode: 'pessimistic_write'}
+      })
+
+      if(!bag) {
+        throw new NotFoundException('Bag not found')
+      }
+
+      if(bag.status === BagStatus.cancelled) {
+        throw new BadRequestException('Bag is Cancelled and cannot be store')
+      }
+
+      if(bag.status === BagStatus.stored) {
+        throw new BadRequestException('Bag is already stored')
+      }
+
+      const rack = await rackRepo.findOne({
+        where: { id: rackId },
+        lock: {mode: 'pessimistic_write'}
+      });
+
+      if(!rack) {
+        throw new NotFoundException('Location not found');
+      }
+
+      if(rack.currentBags >= rack.capacity) {
+        throw new BadRequestException('Rack is full');
+      }
+
+      rack.currentBags += 1;
+
+
+      bag.status = BagStatus.stored;
+      bag.rackId = rackId;
+
+      await rackRepo.save(rack)
+      await bagRepo.save(bag);
+
+      return bag;
+
+    })
+
+  }
+
 }
