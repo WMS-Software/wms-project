@@ -20,7 +20,8 @@ pino-pretty \
 helmet \
 @nestjs/throttler \
 @nestjs/swagger \
-swagger-ui-express
+swagger-ui-express\
+uuid
 
 
 echo "Installing dev dependencies..."
