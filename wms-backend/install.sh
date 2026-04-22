@@ -32,8 +32,7 @@ eslint \
 husky \
 lint-staged \
 @types/passport-jwt \
-@types/bcrypt \
-uuid
+@types/bcrypt
 
 
 echo "All dependencies installed successfully ✅"

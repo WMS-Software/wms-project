@@ -1,6 +1,5 @@
 
-import { Body, Controller, Post } from '@nestjs/common';
-import { BagService } from './bag.service';
+import { Controller } from '@nestjs/common';
 
-@Controller('bags')
+@Controller('bag')
 export class BagController {}
