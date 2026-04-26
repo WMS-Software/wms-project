@@ -1,6 +1,7 @@
 
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from 'typeorm';
 import { Chamber } from '../../chamber/entities/chamber.entity';
+import { RackStatus } from './rack_status.enum';
 
 @Unique(['chamberId', 'rackNumber'])
 @Entity('racks')
@@ -24,13 +25,20 @@ export class Rack {
 
   @Column({
     type : 'enum',
-    enum: ['EMPTY', 'PARTIALLY_FULL', 'FULL'],
-    default: 'EMPTY',
+    enum: RackStatus,
+    enumName: 'rack_status_enum', 
+    default: RackStatus.empty,
   })
-  status !: string
+  status !: RackStatus;
+
+  @Column()
+  capacity !: number;
+
+  @Column({ default: 0 })
+  currentBags !: number;
 
   @CreateDateColumn()
-      createdAt!: Date;
+    createdAt!: Date;
       
   @UpdateDateColumn()
     updatedAt!: Date;

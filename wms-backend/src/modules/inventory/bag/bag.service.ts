@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { LotCounter } from './entities/lot_counter.entity';
 import { BagStatus } from './entities/bag_status.enum';
 import { Rack } from '../rack/entities/rack.entity';
+import { RackStatus } from '../rack/entities/rack_status.enum';
 
 @Injectable()
 export class BagService {
@@ -92,7 +93,6 @@ export class BagService {
     return await this.dataSource.transaction(async (manager) => {
       const bagRepo = manager.getRepository(Bag);
       const rackRepo = manager.getRepository(Rack);
-
       const bag = await bagRepo.findOne({
         where: {barcode},
         lock: {mode: 'pessimistic_write'}
@@ -119,7 +119,7 @@ export class BagService {
         throw new NotFoundException('Location not found');
       }
 
-      if(rack.currentBags >= rack.capacity) {
+      if(rack.status === RackStatus.full) {
         throw new BadRequestException('Rack is full');
       }
 
