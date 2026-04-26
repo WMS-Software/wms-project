@@ -1,9 +1,27 @@
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+  Index,
+} from 'typeorm';
+
 import { User } from 'src/modules/user/entities/user.entity';
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+
 console.log("WAREHOUSE ENTITY LOADED");
+
+// 🔥 enum for safety
+export enum WarehouseStatus {
+  EMPTY = 'EMPTY',
+  PARTIALLY_FULL = 'PARTIALLY_FULL',
+  FULL = 'FULL',
+}
+
 @Entity('warehouses')
 export class Warehouse {
-
 
   @PrimaryGeneratedColumn('uuid')
   id!: string;
@@ -14,29 +32,33 @@ export class Warehouse {
   @Column()
   warehouseName!: string;
 
-  @Column()
+  @Column({ type: 'text' })
   address!: string;
 
   @Column({ default: true })
   isActive!: boolean;
 
-  @Column({ type: 'int', generated: 'increment', unique: true })
+  // 🔥 sequence per system (ok for now)
+  @Column({ type: 'int' })
   sequenceNumber!: number;
 
+  // 🔥 proper enum typing
   @Column({
     type: 'enum',
-    enum: ['EMPTY', 'PARTIALLY_FULL', 'FULL'],
-    default: 'EMPTY',
+    enum: WarehouseStatus,
+    default: WarehouseStatus.EMPTY,
   })
-  status!: string;
+  status!: WarehouseStatus;
 
+  // 🔥 index improves query speed
+  @Index()
   @Column()
   userId!: string;
 
-  //user bannene k baad un comment krna hai
-  // @ManyToOne(() => User)
-  // @JoinColumn({ name: 'userId' })
-  // user!: User;
+  // ✅ enable when needed
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'userId' })
+  user!: User;
 
   @Column()
   city!: string;
@@ -52,5 +74,4 @@ export class Warehouse {
 
   @UpdateDateColumn()
   updatedAt!: Date;
-  
 }
