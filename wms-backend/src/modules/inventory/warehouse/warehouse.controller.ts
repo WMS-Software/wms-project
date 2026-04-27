@@ -1,42 +1,51 @@
-
-import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { WarehouseService } from './warehouse.service';
 import { Warehouse } from './entities/warehouse.entity';
 import { CreateWarehouseDto } from './dto/wareHouse.dto';
 import { User } from 'src/modules/user/entities/user.entity';
-import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
-//@UseGuards(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt'))
 @Controller('warehouse')
 export class WarehouseController {
-    constructor(private readonly warehouseService:WarehouseService){}
+  constructor(private readonly warehouseService: WarehouseService) {}
 
-    @Post()
-    create(@Body() dto: CreateWarehouseDto, @CurrentUser() user ,//@Req() req: any
-    ){
-        const userId = user.id//req.user.id;
-        return this.warehouseService.createWarehouse(dto, userId);
-    }
+  @Post()
+  create(
+    @Body() dto: CreateWarehouseDto,
+     user, @Req() req: any
+  ) {
+    const userId =  req.user.id;
+    return this.warehouseService.createWarehouse(dto, userId);
+  }
 
-    @Get()
-    findAll(){
-        return this.warehouseService.findAllWarehouse();
-    }
+  @Get()
+  findAll() {
+    return this.warehouseService.findAllWarehouse();
+  }
+  
+  @Get(':id')
+  findById(@Param('id') id: string) {
+    return this.warehouseService.findWarehouseById(id);
+  }
 
-    @Get(':id')
-    findById(@Param('id') id:string){
-        return this.warehouseService.findWarehouseById(id);
-    }
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() dto: Partial<CreateWarehouseDto>) {
+    return this.warehouseService.updateWarehouse(id, dto);
+  }
 
-    @Patch(':id')
-    update(@Param('id') id:string, @Body() dto: Partial<CreateWarehouseDto>){
-        return this.warehouseService.updateWarehouse(id, dto);
-    }
-
-    @Delete(':id')
-    delete(@Param('id') id:string){
-        return this.warehouseService.deleteWarehouse(id);
-    }
-
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.warehouseService.deleteWarehouse(id);
+  }
 }

@@ -24,22 +24,22 @@ export class Rack {
   chamber !: Chamber;
 
   @Column({
-    type : 'enum',
+    type: 'enum',
     enum: RackStatus,
-    enumName: 'rack_status_enum', 
-    default: RackStatus.empty,
+    enumName: 'rack_status_enum',       
+    default: RackStatus.available
   })
   status !: RackStatus;
-
-  @Column()
-  capacity !: number;
-
-  @Column({ default: 0 })
-  currentBags !: number;
 
   @CreateDateColumn()
     createdAt!: Date;
       
+  @Column()
+    capacity!: number;
+
+  @Column({default:0})
+    currentBags!: number;
+
   @UpdateDateColumn()
     updatedAt!: Date;
 }
