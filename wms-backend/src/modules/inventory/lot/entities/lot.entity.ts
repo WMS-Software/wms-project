@@ -43,22 +43,22 @@ export class Lot {
   @Column({ nullable: true })
   inwardId!: string;
 
-  @ManyToOne(() => Inward)
-  @JoinColumn({ name: 'inwardId' })
-  inward!: Inward;
+  // @ManyToOne(() => Inward)
+  // @JoinColumn({ name: 'inwardId' })
+  // inward!: Inward;
 
-  @Column({ nullable: true })
-  inwardDate!: Date;
+  // @Column({ nullable: true })
+  // inwardDate!: Date;
 
-  @Column({ nullable: true })
-  outwardId!: string;
+  // @Column({ nullable: true })
+  // outwardId!: string;
 
-  @ManyToOne(() => Outward)
-  @JoinColumn({ name: 'outwardId' })
-  outward!: Outward;
+  // @ManyToOne(() => Outward)
+  // @JoinColumn({ name: 'outwardId' })
+  // outward!: Outward;
 
-  @Column({ nullable: true })
-  outwardDate!: Date;
+  // @Column({ nullable: true })
+  // outwardDate!: Date;
 
   @Column({
     type : 'enum',

@@ -1,6 +1,6 @@
 export enum BagStatus {
     stored = 'STORED',
-    dispatch = 'DISPATCH',
+    dispatched = 'DISPATCH',
     cancelled = 'CANCELLED',
     damaged = 'DAMAGED',
     pending = 'PENDING',
