@@ -3,61 +3,70 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+
 import { CreateWarehouseDto } from './dto/wareHouse.dto';
 import { Warehouse } from './entities/warehouse.entity';
+
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+
 import { formatWarehouseCode } from './utils/formatCode.utils';
 
 @Injectable()
 export class WarehouseService {
-
-
   constructor(
     @InjectRepository(Warehouse)
     private readonly warehouseRepo: Repository<Warehouse>,
   ) {}
 
-
-
-
+  // 🔥 CREATE WAREHOUSE (FIXED)
   async createWarehouse(
     dto: CreateWarehouseDto,
     userId: string,
   ): Promise<Warehouse> {
     try {
-      const warehouse = this.warehouseRepo.create({
-        ...dto,
-        userId,
+      // ✅ get last sequence
+      const last = await this.warehouseRepo.find({
+        order: { sequenceNumber: 'DESC' },
+        take: 1,
       });
-      const saveWarehouse = await this.warehouseRepo.save(warehouse);
 
+      const nextSequence = last.length
+        ? last[0].sequenceNumber + 1
+        : 1;
+
+      // ✅ generate code before saving so required unique field is present
       const warehouseCode = formatWarehouseCode(
         dto.city,
         dto.pincode,
-        saveWarehouse.sequenceNumber,
+        nextSequence,
       );
 
-      saveWarehouse.warehouseCode = warehouseCode;
-      return await this.warehouseRepo.save(saveWarehouse);
+      // ✅ create warehouse
+      const warehouse = this.warehouseRepo.create({
+        ...dto,
+        userId,
+        sequenceNumber: nextSequence,
+        warehouseCode,
+      });
+
+      return await this.warehouseRepo.save(warehouse);
+
     } catch (error: any) {
-      console.error('Error in creating warehouse', error.message);
+      console.error('Error in creating warehouse:', error);
       throw new InternalServerErrorException('Failed to create warehouse');
     }
   }
 
-
-
-
+  // 🔥 GET ALL
   async findAllWarehouse() {
     return this.warehouseRepo.find({
-        where: {isActive: true}
+      where: { isActive: true },
+      order: { createdAt: 'DESC' },
     });
   }
 
-
-
-
+  // 🔥 GET ONE
   async findWarehouseById(id: string) {
     const warehouse = await this.warehouseRepo.findOneBy({ id });
 
@@ -68,21 +77,17 @@ export class WarehouseService {
     return warehouse;
   }
 
-
-
-
+  // 🔥 UPDATE
   async updateWarehouse(id: string, dto: Partial<CreateWarehouseDto>) {
     try {
       const warehouse = await this.findWarehouseById(id);
 
-      const { warehouseName } = dto;
-
-      Object.assign(warehouse, { warehouseName });
+      Object.assign(warehouse, dto);
 
       return await this.warehouseRepo.save(warehouse);
 
     } catch (error: any) {
-      console.error('Error updating warehouse:', error.message);
+      console.error('Error updating warehouse:', error);
 
       if (error instanceof NotFoundException) {
         throw error;
@@ -92,35 +97,14 @@ export class WarehouseService {
     }
   }
 
-
-
-
-//   async deleteWarehouse(id: string) {
-//     try {
-//       await this.findWarehouseById(id);
-
-//       await this.warehouseRepo.delete(id);
-
-//       return { message: 'Deleted successfully' };
-//     } catch (error: any) {
-//       console.error('Error deleting warehouse:', error.message);
-
-//       if (error instanceof NotFoundException) {
-//         throw error;
-//       }
-
-//       throw new InternalServerErrorException('Failed to delete warehouse');
-//     }
-//   }
-
+  // 🔥 SOFT DELETE
   async deleteWarehouse(id: string) {
-      const warehouse = await this.findWarehouseById(id);
+    const warehouse = await this.findWarehouseById(id);
 
-      warehouse.isActive = false;
+    warehouse.isActive = false;
 
-     await this.warehouseRepo.save(warehouse);
+    await this.warehouseRepo.save(warehouse);
 
-     return { message: 'Warehouse deactivated successfully' };
+    return { message: 'Warehouse deactivated successfully' };
   }
-
 }
