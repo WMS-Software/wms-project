@@ -47,9 +47,9 @@ export class Lot {
   @Column()
   inwardId?: string;
 
-  @ManyToOne(() => Inward)
-  @JoinColumn({ name: 'inwardId' })
-  inward!: Inward;
+  // @ManyToOne(() => Inward)
+  // @JoinColumn({ name: 'inwardId' })
+  // inward!: Inward;
 
   // @Column({ nullable: true })
   // inwardDate!: Date;

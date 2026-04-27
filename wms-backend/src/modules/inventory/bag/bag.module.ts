@@ -6,10 +6,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LotCounter } from './entities/lot_counter.entity';
 import { Bag } from './entities/bag.entity';
 import { Rack } from '../rack/entities/rack.entity';
+import { Lot } from '../lot/entities/lot.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Bag, LotCounter, Rack])
+    TypeOrmModule.forFeature([Bag, LotCounter, Rack, Lot])
   ],
   controllers: [BagController],
   providers: [BagService],

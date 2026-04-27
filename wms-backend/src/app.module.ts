@@ -10,22 +10,33 @@ import { LotLocationModule } from './modules/inventory/lot-location/lot-location
 import { WarehouseModule } from './modules/inventory/warehouse/warehouse.module';
 import { LevelModule } from './modules/inventory/level/level.module';
 import { ChamberModule } from './modules/inventory/chamber/chamber.module';
+import { CustomerModule } from './modules/partner/customer/customer.module';
+import { InwardModule } from './modules/operations/inward/inward.module';
+import { OutwardModule } from './modules/operations/outward/outward.module';
 
 
 @Module({
   imports: [
     DatabaseModule,
 
+    // warehouse modules
     UserModule,
     AuthModule,
 
+    // customer modules
+    CustomerModule,
+
+    // inventory modules
     BagModule,
     RackModule,
-
     LotLocationModule,
     WarehouseModule,
     LevelModule,
     ChamberModule,
+
+    // operations module
+    InwardModule,
+    OutwardModule,
     
   ],
   controllers: [AppController],
