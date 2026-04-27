@@ -21,27 +21,23 @@ import * as Joi from 'joi';
       }).or('DB_USER', 'DB_USERNAME').or('DB_PASSWORD', 'DB_PASS').or('DB_DATABASE', 'DB_NAME'),
     }),
     TypeOrmModule.forRootAsync({
-      useFactory: (configService: ConfigService) => {
-        const username = configService.get<string>('DB_USERNAME') || configService.get<string>('DB_USER');
-        const password = configService.get<string>('DB_PASSWORD') || configService.get<string>('DB_PASS');
-        const database = configService.get<string>('DB_DATABASE') || configService.get<string>('DB_NAME');
-
-        return {
-          type: 'postgres',
-          host: configService.get<string>('DB_HOST'),
-          port: Number(configService.get<number>('DB_PORT')),
-          username,
-          password,
-          database,
-          autoLoadEntities: true,
-          synchronize: (configService.get<string>('DB_SYNC') || 'false') === 'true',
-          logging: true,
-        };
-      },
-      inject: [ConfigService],
-    }),
-  ],
-  controllers: [],
-  providers: [],
+  useFactory: (configService: ConfigService) => ({
+    type: 'postgres',
+    host: configService.get<string>('DB_HOST'),
+    port: Number(configService.get<string>('DB_PORT')),
+    username: configService.get<string>('DB_USERNAME'),
+    password: configService.get<string>('DB_PASSWORD'),
+    database: configService.get<string>('DB_DATABASE'),
+    // entities: [__dirname+ '/**/*.entity{.ts,.js}'],    // we will use in prod but for now we use autoload
+    autoLoadEntities: true,
+    synchronize: configService.get<string>('DB_SYNC') === 'true',
+    logging: true,
+  
+  }),
+  inject: [ConfigService],
+}),
+    ],
+      controllers: [],
+      providers: [],
 })
 export class DatabaseModule {}
