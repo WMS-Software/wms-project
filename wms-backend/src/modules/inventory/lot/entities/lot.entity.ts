@@ -1,11 +1,12 @@
 
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from 'typeorm';
 import { Warehouse } from '../../warehouse/entities/warehouse.entity';
 import { Customer } from 'src/modules/partner/customer/entities/customer.entity';
 import { Inward } from 'src/modules/operations/inward/entities/inward.entity';
-import { Outward } from 'src/modules/operations/outward/entities/outward.entity';
+//import { Outward } from 'src/modules/operations/outward/entities/outward.entity';
 
 @Entity('lots')
+@Unique(['warehouseId', 'lotNumber'])
 export class Lot {
 
   @PrimaryGeneratedColumn('uuid')
@@ -32,7 +33,10 @@ export class Lot {
   customer !: Customer;
 
   @Column()
-  noOfBags !: number;
+  initialQuantity!: number;   // inward time
+
+  @Column()
+  availableQuantity!: number;
 
   @CreateDateColumn()
     createdAt!: Date;
@@ -40,8 +44,8 @@ export class Lot {
   @UpdateDateColumn()
     updatedAt!: Date;
 
-  @Column({ nullable: true })
-  inwardId!: string;
+  @Column()
+  inwardId?: string;
 
   // @ManyToOne(() => Inward)
   // @JoinColumn({ name: 'inwardId' })
@@ -49,6 +53,10 @@ export class Lot {
 
   // @Column({ nullable: true })
   // inwardDate!: Date;
+
+
+  //Iske liye ek alg se outward item table banegi toh phir humme kyonki outward ek se jyada time hoga aur agr hum usko issi table mei rakhenge
+  //nayi waaki value purani waali value ko overwrite kr degi
 
   // @Column({ nullable: true })
   // outwardId!: string;
@@ -66,4 +74,7 @@ export class Lot {
     default : "Inward",
   })
   lotStatus !: string;
+
+  @Column({ default: true })
+  isActive!: boolean;
 }
