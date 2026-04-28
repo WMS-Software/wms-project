@@ -21,10 +21,9 @@ export class CustomerService {
     private readonly warehouseRepo: Repository<Warehouse>,
   ) {}
 
-  // CREATE CUSTOMER
-  async create(dto: CreateCustomerDto, warehouseId: string) {
+  async create(dto: CreateCustomerDto, userId: string) {
     const warehouse = await this.warehouseRepo.findOne({
-      where: { id: warehouseId },
+      where: { userId }, 
     });
 
     if (!warehouse) {
@@ -35,27 +34,39 @@ export class CustomerService {
 
     const customer = this.repo.create({
       ...dto,
-      warehouseId,
+      warehouseId: warehouse.id,
       customerCode,
     });
 
     try {
       return await this.repo.save(customer);
     } catch (error) {
-      // handle unique constraint error
-      throw new ConflictException('Customer already exists in this warehouse');
+      if (error.code === '23505') {
+        throw new ConflictException('Customer already exists');
+      }
+      throw error;
     }
   }
 
   async findAll(
-    warehouseId: string,
+    userId: string,
     page = 1,
     limit = 10,
     search?: string,
   ) {
+    const warehouse = await this.warehouseRepo.findOne({
+      where: { userId },
+    });
+
+    if (!warehouse) {
+      throw new NotFoundException('Warehouse not found');
+    }
+
     const query = this.repo
       .createQueryBuilder('customer')
-      .where('customer.warehouseId = :warehouseId', { warehouseId })
+      .where('customer.warehouseId = :warehouseId', {
+        warehouseId: warehouse.id,
+      })
       .andWhere('customer.status = :status', { status: 'ACTIVE' });
 
     if (search) {
@@ -79,10 +90,20 @@ export class CustomerService {
     };
   }
 
-  // GET ONE
-  async findOne(id: string) {
+  async findOne(id: string, userId: string) {
+    const warehouse = await this.warehouseRepo.findOne({
+      where: { userId },
+    });
+
+    if (!warehouse) {
+      throw new NotFoundException('Warehouse not found');
+    }
+
     const customer = await this.repo.findOne({
-      where: { id },
+      where: {
+        id,
+        warehouseId: warehouse.id, // 🔥 prevent cross-access
+      },
     });
 
     if (!customer) {
@@ -92,23 +113,22 @@ export class CustomerService {
     return customer;
   }
 
-  // UPDATE
-  async update(id: string, dto: Partial<CreateCustomerDto>) {
-    const customer = await this.findOne(id);
+  async update(id: string, dto: Partial<CreateCustomerDto>, userId: string) {
+    const customer = await this.findOne(id, userId);
 
     Object.assign(customer, dto);
 
     return this.repo.save(customer);
   }
 
-  async remove(id: string) {
-    const customer = await this.findOne(id);
+  async remove(id: string, userId: string) {
+    const customer = await this.findOne(id, userId);
 
     customer.status = 'INACTIVE';
 
     return this.repo.save(customer);
   }
-
+  
   private async generateCustomerCode(
     warehouse: Warehouse,
   ): Promise<string> {
@@ -116,7 +136,6 @@ export class CustomerService {
 
     const whCode = warehouse.warehouseCode.split('-')[1];
 
-    // count customers in this warehouse
     const count = await this.repo.count({
       where: { warehouseId: warehouse.id },
     });
