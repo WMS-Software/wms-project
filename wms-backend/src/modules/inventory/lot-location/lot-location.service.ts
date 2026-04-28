@@ -128,13 +128,17 @@ export class LotLocationService {
       throw new NotFoundException('Lot not found');
 
 
-    // 🔥 LOCK RACK WITHOUT WAITING
+    // LOCK RACK WITHOUT WAITING
+
+
     const rack = await qr.manager
       .createQueryBuilder(Rack,'rack')
       .setLock('pessimistic_write')
-      .setOnLocked('nowait')   // ⭐ KEY LINE
+      .setOnLocked('nowait')   // KEY LINE
       .where('rack.id = :rackId',{rackId})
       .getOne();
+
+
 
     if(!rack)
       throw new NotFoundException('Rack not found');
@@ -155,6 +159,9 @@ export class LotLocationService {
       LotLocation,
       { where:{ lotId, rackId } }
     );
+
+
+
 
     if(existing)
       throw new BadRequestException(
@@ -197,7 +204,7 @@ export class LotLocationService {
 
     await qr.rollbackTransaction();
 
-    // ⭐ important handling
+    // important handling
     if(error.code === '55P03'){
       throw new BadRequestException(
         'Rack currently being used by another operator'

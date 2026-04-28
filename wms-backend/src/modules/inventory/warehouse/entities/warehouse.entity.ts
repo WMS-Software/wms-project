@@ -39,7 +39,9 @@ export class Warehouse {
   isActive!: boolean;
 
   // 🔥 sequence per system (ok for now)
-  @Column({ type: 'int' })
+  @Column({ type: 'int',
+    generated: 'increment',
+   })
   sequenceNumber!: number;
 
   // 🔥 proper enum typing
