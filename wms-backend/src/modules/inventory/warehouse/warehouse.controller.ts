@@ -11,7 +11,6 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { WarehouseService } from './warehouse.service';
-import { Warehouse } from './entities/warehouse.entity';
 import { CreateWarehouseDto } from './dto/wareHouse.dto';
 import { User } from 'src/modules/user/entities/user.entity';
 
@@ -23,7 +22,7 @@ export class WarehouseController {
   @Post()
   create(
     @Body() dto: CreateWarehouseDto,
-     user, @Req() req: any
+    @Req() req: { user: User },
   ) {
     const userId =  req.user.id;
     return this.warehouseService.createWarehouse(dto, userId);
