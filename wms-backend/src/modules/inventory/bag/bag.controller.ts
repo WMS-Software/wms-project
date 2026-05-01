@@ -1,5 +1,5 @@
 
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
 import { BagService } from './bag.service';
 
 @Controller('bags')
@@ -14,24 +14,24 @@ export class BagController {
         return this.bagservice.generateBag(lotId,qty)
     }
 
-    @Post('store') 
+    @Post(':barcode/store') 
     async storeBag(
-        @Body('barcode') barcode: string,
+        @Param('barcode') barcode: string,
         @Body('rackId') rackId: string,
     ) {
         return this.bagservice.storeBag(barcode,rackId);
     }
 
-    @Post('cancel')
+    @Patch(':barcode/cancel')
     async cancellBag(
-        @Body('barcode') barcode: string,
+        @Param('barcode') barcode: string,
     ) {
         return this.bagservice.cancellBag(barcode);
     }
 
-    @Post('dispatch')
+    @Patch(':barcode/dispatch')
     async dispatchBag(
-        @Body('barcode') barcode: string,
+        @Param('barcode') barcode: string,
     ) {
         return this.bagservice.dispatchBag(barcode);
     }

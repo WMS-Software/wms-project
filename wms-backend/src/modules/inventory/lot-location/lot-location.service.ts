@@ -4,6 +4,7 @@ import { Rack } from '../rack/entities/rack.entity';
 import { Not, Repository } from 'typeorm';
 import { Lot } from '../lot/entities/lot.entity';
 import { LotLocation } from './entities/lot-location.entity';
+import { RackStatus } from '../rack/entities/rack_status.enum';
 
 @Injectable()
 export class LotLocationService {
@@ -24,7 +25,7 @@ export class LotLocationService {
 
             where:{
                 chamberId, 
-                status: Not('FULL')
+                status: Not(RackStatus.full)
             },
 
             order:{

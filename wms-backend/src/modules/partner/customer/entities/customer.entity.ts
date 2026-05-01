@@ -1,16 +1,5 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-  ManyToOne,
-  JoinColumn,
-  Unique,
-} from 'typeorm';
 
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from 'typeorm';
 import { Warehouse } from 'src/modules/inventory/warehouse/entities/warehouse.entity';
 import { Lot } from 'src/modules/inventory/lot/entities/lot.entity';
 
@@ -20,8 +9,6 @@ export class Customer {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @PrimaryGeneratedColumn('uuid')
-  id!: string;
   @Column()
   customerCode!: string;
 
