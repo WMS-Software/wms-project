@@ -6,14 +6,14 @@ import { Inward } from 'src/modules/operations/inward/entities/inward.entity';
 //import { Outward } from 'src/modules/operations/outward/entities/outward.entity';
 
 @Entity('lots')
-@Unique(['warehouseId', 'lotNumber'])
+@Unique(['warehouseId', 'lotCode'])
 export class Lot {
 
   @PrimaryGeneratedColumn('uuid')
   id !: string;
 
-  @Column()
-  lotNumber !: string;
+  @Column({ unique: true })
+  lotCode !: string;
 
   @Column()
   typeOfItem !: string;
@@ -74,6 +74,10 @@ export class Lot {
     default : "Inward",
   })
   lotStatus !: string;
+
+
+  @Column({ type: 'int', default: 0 })
+  sequenceNumber!: number;
 
   @Column({ default: true })
   isActive!: boolean;

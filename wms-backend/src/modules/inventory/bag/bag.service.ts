@@ -113,8 +113,8 @@ export class BagService {
         const bag = manager.create(Bag, {
           lotId,
           serial: curr,
-          bagCode: `BAG-${lot.lotNumber}-${serial}`,
-          barcode: `BAG-${lot.lotNumber}-${serial}`,
+          bagCode: `BAG-${lot.lotCode}-${serial}`,
+          barcode: `BAG-${lot.lotCode}-${serial}`,
           status: BagStatus.pending,
         });
 

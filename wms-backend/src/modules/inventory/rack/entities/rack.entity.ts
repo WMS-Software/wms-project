@@ -40,7 +40,9 @@ export class Rack {
   @Column({default:0})
     currentBags!: number;
 
+  @Column({ default: false })
+    isBusy!: boolean;
+
   @UpdateDateColumn()
     updatedAt!: Date;
 }
-
