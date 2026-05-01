@@ -12,7 +12,6 @@ export class UserController {
     return this.userService.create(dto);
   }
 
-  //  GET USER (PROTECTED)
   @UseGuards(AuthGuard('jwt'))
   @Get(':id')
   getUser(@Param('id') id: string) {

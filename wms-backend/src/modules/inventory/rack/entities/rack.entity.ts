@@ -46,4 +46,3 @@ export class Rack {
   @UpdateDateColumn()
     updatedAt!: Date;
 }
-
