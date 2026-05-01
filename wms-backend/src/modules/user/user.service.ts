@@ -27,7 +27,8 @@ export class UserService {
       throw new ConflictException('Email already exists');
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
+   const SALT_ROUNDS = 10;
+   const hashedPassword = await bcrypt.hash(dto.password, SALT_ROUNDS);
 
     const user = this.repo.create({
       ...dto,
@@ -36,21 +37,24 @@ export class UserService {
 
     const saved = await this.repo.save(user);
 
-    //  REMOVE PASSWORD FROM RESPONSE
     const { password, ...result } = saved;
     return result;
   }
 
   async findByEmail(email: string) {
-    return this.repo.findOne({ where: { email } });
-  }
+  return this.repo.findOne({
+    where: {
+      email,
+      isActive: true,
+    },
+  });
+}
 
   async findById(id: string) {
-    const user = await this.repo.findOne({ where: { id } });
+  const user = await this.repo.findOne({ where: { id, isActive: true } });
 
-    if (!user) throw new NotFoundException('User not found');
+  if (!user) throw new NotFoundException('User not found');
 
-    const { password, ...result } = user;
-    return result;
-  }
+  return user;
+}
 }

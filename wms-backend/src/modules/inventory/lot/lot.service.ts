@@ -7,6 +7,7 @@ import { Customer } from 'src/modules/partner/customer/entities/customer.entity'
 import { Lot } from './entities/lot.entity';
 import { CreateLotDto } from './dto/lot.dto';
 import { Inward } from 'src/modules/operations/inward/entities/inward.entity';
+import { formatLotCode } from './utils/lotCode';
 
 @Injectable()
 export class LotService {
@@ -27,84 +28,184 @@ export class LotService {
     
     
     
+                // async createLot(
+                //             dto : CreateLotDto,
+                //             warehouseId : string,
+                //             customerId : string,
+                //             inwardId : string,
+                //         ):Promise<Lot>{
+                    
+                    
+                //             try {
+
+                //                 const warehouse = await this.warehouseRepo.findOne({
+                //                     where: {
+                //                         id: warehouseId,
+                //                         isActive: true
+                //                     }
+                //                 })
+                    
+                //                 if(!warehouse){
+                //                     throw new NotFoundException('warehouse not found');
+                //                 }
+
+                //                 const inward = await this.inwardRepo.findOne({
+                //                     where: {
+                //                         id: inwardId,
+                //                         warehouseId: warehouseId
+                //                     }
+                //                 })
+
+                //                 if(!inward){
+                //                     throw new NotFoundException('No inward operation exist');
+                //                 }
+
+                //                 const existingLot = await this.lotRepo.findOne({
+                //                     where:{inwardId}
+                //                 })
+
+                //                 if(existingLot){
+                //                     throw new BadRequestException('Lot already exists for this inward operation')
+                //                 }
+
+                //                 const customer = await this.customerRepo.findOne({
+                //                     where: {
+                //                         id: customerId,
+                //                     }
+                //                 })
+
+                //                 if(!customer){
+                //                     throw new NotFoundException('customer not found');
+                //                 }
+                    
+                    
+                //                 const lot = this.lotRepo.create({
+                //                     typeOfItem: dto.typeOfItem,
+                //                     initialQuantity: dto.initialQuantity,
+                //                     availableQuantity: dto.initialQuantity, // system controlled
+                //                     warehouseId,
+                //                     customerId,
+                //                     inwardId
+                //             })
+                    
+                //             const saveLot = await this.lotRepo.save(lot);
+
+                //             const lotCode = formatLotCode(warehouse.warehouseCode, saveLot.sequenceNumber);
+
+                //             saveLot.lotCode = lotCode;
+
+                //             return await this.lotRepo.save(saveLot);
+                //             }
+                    
+                //             catch (error:any) {
+                //                 console.error('Error in creating lot:', error.message);
+                                
+                //                       if (error instanceof NotFoundException) {
+                //                         throw error;
+                //                       }
+                    
+                //                       if(error.code === '23505'){
+                //                         throw new InternalServerErrorException(`Lot number already exists`);
+                //                       }
+                                
+                //                       throw new InternalServerErrorException('Failed to create Lot');
+                //             }
+                //         }
+
+
+
+
+
+
+
                 async createLot(
-                            dto : CreateLotDto,
-                            warehouseId : string,
-                            customerId : string,
-                            inwardId : string,
-                        ):Promise<Lot>{
-                    
-                    
-                            try {
+  dto: CreateLotDto,
+  warehouseId: string,
+  customerId: string,
+  inwardId: string,
+): Promise<Lot> {
 
-                                const warehouse = await this.warehouseRepo.findOne({
-                                    where: {
-                                        id: warehouseId,
-                                        isActive: true
-                                    }
-                                })
-                    
-                                if(!warehouse){
-                                    throw new NotFoundException('warehouse not found');
-                                }
+  try {
 
-                                const inward = await this.inwardRepo.findOne({
-                                    where: {
-                                        id: inwardId,
-                                        warehouseId: warehouseId
-                                    }
-                                })
+    const warehouse = await this.warehouseRepo.findOne({
+      where: { id: warehouseId, isActive: true }
+    });
 
-                                if(!inward){
-                                    throw new NotFoundException('No inward operation exist');
-                                }
+    if (!warehouse)
+      throw new NotFoundException('warehouse not found');
 
-                                const existingLot = await this.lotRepo.findOne({
-                                    where:{inwardId}
-                                })
 
-                                if(existingLot){
-                                    throw new BadRequestException('Lot already exists for this inward operation')
-                                }
+    const inward = await this.inwardRepo.findOne({
+      where: { id: inwardId, warehouseId }
+    });
 
-                                const customer = await this.customerRepo.findOne({
-                                    where: {
-                                        id: customerId,
-                                    }
-                                })
+    if (!inward)
+      throw new NotFoundException('No inward operation exist');
 
-                                if(!customer){
-                                    throw new NotFoundException('customer not found');
-                                }
-                    
-                    
-                                const lot = this.lotRepo.create({
-                                    lotNumber: dto.lotNumber,
-                                    typeOfItem: dto.typeOfItem,
-                                    initialQuantity: dto.initialQuantity,
-                                    availableQuantity: dto.initialQuantity, // system controlled
-                                    warehouseId,
-                                    customerId,
-                                    inwardId
-                            })
-                    
-                            return this.lotRepo.save(lot);
-                            }
-                    
-                            catch (error:any) {
-                                console.error('Error in creating lot:', error.message);
-                                
-                                      if (error instanceof NotFoundException) {
-                                        throw error;
-                                      }
-                    
-                                      if(error.code === '23505'){
-                                        throw new InternalServerErrorException(`Lot ${dto.lotNumber} already exists`);
-                                      }
-                                
-                                      throw new InternalServerErrorException('Failed to create Lot');
-                            }
-                        }
+
+    const existingLot = await this.lotRepo.findOne({
+      where: { inwardId }
+    });
+
+    if (existingLot)
+      throw new BadRequestException('Lot already exists for this inward operation');
+
+
+    const customer = await this.customerRepo.findOne({
+      where: { id: customerId }
+    });
+
+    if (!customer)
+      throw new NotFoundException('customer not found');
+
+
+    // 🔥 STEP 1: get last sequence for warehouse
+    const lastLot = await this.lotRepo.findOne({
+      where: { warehouseId },
+      order: { sequenceNumber: 'DESC' }
+    });
+
+    const nextSeq = lastLot ? lastLot.sequenceNumber + 1 : 1;
+
+
+    // 🔥 STEP 2: create lot WITH sequence
+    const lot = this.lotRepo.create({
+      typeOfItem: dto.typeOfItem,
+      initialQuantity: dto.initialQuantity,
+      availableQuantity: dto.initialQuantity,
+      warehouseId,
+      customerId,
+      inwardId,
+      sequenceNumber: nextSeq
+    });
+
+
+    const savedLot = await this.lotRepo.save(lot);
+
+
+    // 🔥 STEP 3: generate code
+    const lotCode = formatLotCode(
+      warehouse.warehouseCode,
+      savedLot.sequenceNumber
+    );
+
+    savedLot.lotCode = lotCode;
+
+    return await this.lotRepo.save(savedLot);
+
+  } catch (error: any) {
+
+    console.error('Error in creating lot:', error.message);
+
+    if (error instanceof NotFoundException)
+      throw error;
+
+    if (error.code === '23505')
+      throw new InternalServerErrorException('Lot already exists');
+
+    throw new InternalServerErrorException('Failed to create Lot');
+  }
+}
                     
                     
                         //Find all levels
