@@ -19,54 +19,46 @@ export class WarehouseService {
     private readonly warehouseRepo: Repository<Warehouse>,
   ) {}
 
-  // 🔥 CREATE WAREHOUSE (FIXED)
+
+
+
   async createWarehouse(
     dto: CreateWarehouseDto,
     userId: string,
   ): Promise<Warehouse> {
     try {
-      // ✅ get last sequence
-      const last = await this.warehouseRepo.find({
-        order: { sequenceNumber: 'DESC' },
-        take: 1,
-      });
-
-      const nextSequence = last.length
-        ? last[0].sequenceNumber + 1
-        : 1;
-
-      // ✅ generate code before saving so required unique field is present
-      const warehouseCode = formatWarehouseCode(
-        dto.city,
-        dto.pincode,
-        nextSequence,
-      );
-
-      // ✅ create warehouse
       const warehouse = this.warehouseRepo.create({
         ...dto,
         userId,
-        sequenceNumber: nextSequence,
-        warehouseCode,
       });
+      const saveWarehouse = await this.warehouseRepo.save(warehouse);
 
-      return await this.warehouseRepo.save(warehouse);
+      const warehouseCode = formatWarehouseCode(
+        dto.city,
+        dto.pincode,
+        saveWarehouse.sequenceNumber,
+      );
 
+      saveWarehouse.warehouseCode = warehouseCode;
+      return await this.warehouseRepo.save(saveWarehouse);
     } catch (error: any) {
-      console.error('Error in creating warehouse:', error);
+      console.error('Error in creating warehouse', error.message);
       throw new InternalServerErrorException('Failed to create warehouse');
     }
   }
 
-  // 🔥 GET ALL
+
+
+
   async findAllWarehouse() {
     return this.warehouseRepo.find({
-      where: { isActive: true },
-      order: { createdAt: 'DESC' },
+        where: {isActive: true}
     });
   }
 
-  // 🔥 GET ONE
+
+
+
   async findWarehouseById(id: string) {
     const warehouse = await this.warehouseRepo.findOneBy({ id });
 
@@ -77,17 +69,27 @@ export class WarehouseService {
     return warehouse;
   }
 
-  // 🔥 UPDATE
+
+
+
   async updateWarehouse(id: string, dto: Partial<CreateWarehouseDto>) {
     try {
       const warehouse = await this.findWarehouseById(id);
 
-      Object.assign(warehouse, dto);
+      const { warehouseName } = dto;
+
+
+
+      Object.assign(warehouse, { warehouseName });
+
+
+
+
 
       return await this.warehouseRepo.save(warehouse);
 
     } catch (error: any) {
-      console.error('Error updating warehouse:', error);
+      console.error('Error updating warehouse:', error.message);
 
       if (error instanceof NotFoundException) {
         throw error;
@@ -97,14 +99,33 @@ export class WarehouseService {
     }
   }
 
-  // 🔥 SOFT DELETE
+//   async deleteWarehouse(id: string) {
+//     try {
+//       await this.findWarehouseById(id);
+
+//       await this.warehouseRepo.delete(id);
+
+//       return { message: 'Deleted successfully' };
+//     } catch (error: any) {
+//       console.error('Error deleting warehouse:', error.message);
+
+//       if (error instanceof NotFoundException) {
+//         throw error;
+//       }
+
+//       throw new InternalServerErrorException('Failed to delete warehouse');
+//     }
+//   }
+
   async deleteWarehouse(id: string) {
-    const warehouse = await this.findWarehouseById(id);
+      const warehouse = await this.findWarehouseById(id);
 
-    warehouse.isActive = false;
+      warehouse.isActive = false;
 
-    await this.warehouseRepo.save(warehouse);
+     await this.warehouseRepo.save(warehouse);
 
-    return { message: 'Warehouse deactivated successfully' };
+     return { message: 'Warehouse deactivated successfully' };
   }
+
+
 }
