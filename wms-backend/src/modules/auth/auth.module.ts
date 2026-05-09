@@ -14,7 +14,7 @@ import { Warehouse } from '../inventory/warehouse/entities/warehouse.entity';
     TypeOrmModule.forFeature([Warehouse]),
     UserModule,
     JwtModule.register({
-      secret: 'secretKey',
+      secret: 'wmsSecretKey',
       signOptions: { expiresIn: '1d' },
     }),
   ],

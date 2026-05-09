@@ -1,3 +1,5 @@
+//temperature feild missing
+
 
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from 'typeorm';
 import { Warehouse } from '../../warehouse/entities/warehouse.entity';

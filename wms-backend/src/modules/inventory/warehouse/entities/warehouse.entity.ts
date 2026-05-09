@@ -26,7 +26,7 @@ export class Warehouse {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, nullable:true })
   warehouseCode!: string;
 
   @Column()
@@ -38,13 +38,13 @@ export class Warehouse {
   @Column({ default: true })
   isActive!: boolean;
 
-  // 🔥 sequence per system (ok for now)
+  // sequence per system (ok for now)
   @Column({ type: 'int',
     generated: 'increment',
    })
   sequenceNumber!: number;
 
-  // 🔥 proper enum typing
+  //  proper enum typing
   @Column({
     type: 'enum',
     enum: WarehouseStatus,
