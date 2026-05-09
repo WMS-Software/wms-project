@@ -25,6 +25,7 @@ export class WarehouseController {
     @Req() req: { user: User },
   ) {
     const userId =  req.user.id;
+    console.log(userId);
     return this.warehouseService.createWarehouse(dto, userId);
   }
 

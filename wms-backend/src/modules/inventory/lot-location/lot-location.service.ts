@@ -317,4 +317,3 @@ async markRackEmpty(rackId: string): Promise<void> {
     await this.rackRepo.save(rack);
 }
 }
-}

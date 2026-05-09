@@ -13,16 +13,16 @@ import {
 
 import { CustomerService } from './customer.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
-import { AuthGuard } from '@nestjs/passport';
+//import { AuthGuard } from '@nestjs/passport';
 
-@UseGuards(AuthGuard('jwt'))
-@Controller('customers')
+// @UseGuards(AuthGuard('jwt'))
+@Controller('warehouse/:warehouseId/customers')
 export class CustomerController {
   constructor(private readonly customerService: CustomerService) {}
 
   @Post()
-  create(@Body() dto: CreateCustomerDto, @Req() req) {
-    return this.customerService.create(dto, req.user.id);
+  create(@Body() dto: CreateCustomerDto, @Param('warehouseId') warehouseId: string) {
+    return this.customerService.create(dto, warehouseId);
   }
 
   @Get()
