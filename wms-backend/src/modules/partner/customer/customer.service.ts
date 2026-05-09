@@ -21,9 +21,9 @@ export class CustomerService {
     private readonly warehouseRepo: Repository<Warehouse>,
   ) {}
 
-  async create(dto: CreateCustomerDto, userId: string) {
+  async create(dto: CreateCustomerDto, warehouseId: string) {
     const warehouse = await this.warehouseRepo.findOne({
-      where: { userId }, 
+      where: { id: warehouseId },
     });
 
     if (!warehouse) {
@@ -40,7 +40,7 @@ export class CustomerService {
 
     try {
       return await this.repo.save(customer);
-    } catch (error) {
+    } catch (error: any) {
       if (error.code === '23505') {
         throw new ConflictException('Customer already exists');
       }
@@ -49,13 +49,13 @@ export class CustomerService {
   }
 
   async findAll(
-    userId: string,
+    warehouseId: string,
     page = 1,
     limit = 10,
     search?: string,
   ) {
     const warehouse = await this.warehouseRepo.findOne({
-      where: { userId },
+      where: { id: warehouseId },
     });
 
     if (!warehouse) {
@@ -90,9 +90,9 @@ export class CustomerService {
     };
   }
 
-  async findOne(id: string, userId: string) {
+  async findOne(id: string, warehouseId: string) {
     const warehouse = await this.warehouseRepo.findOne({
-      where: { userId },
+      where: { id: warehouseId },
     });
 
     if (!warehouse) {
@@ -113,16 +113,16 @@ export class CustomerService {
     return customer;
   }
 
-  async update(id: string, dto: Partial<CreateCustomerDto>, userId: string) {
-    const customer = await this.findOne(id, userId);
+  async update(id: string, dto: Partial<CreateCustomerDto>, warehouseId: string) {
+    const customer = await this.findOne(id, warehouseId);
 
     Object.assign(customer, dto);
 
     return this.repo.save(customer);
   }
 
-  async remove(id: string, userId: string) {
-    const customer = await this.findOne(id, userId);
+  async remove(id: string, warehouseId: string) {
+    const customer = await this.findOne(id, warehouseId);
 
     customer.status = 'INACTIVE';
 

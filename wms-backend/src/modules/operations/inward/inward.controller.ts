@@ -3,7 +3,7 @@ import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { InwardService } from './inward.service';
 import { createInwardDto } from './dto/createInwardDto';
 
-@Controller('inward')
+@Controller('/warehouses/:warehouseId/customer/:customerId/inwards')
 export class InwardController {
     constructor(private readonly inwardService: InwardService) {}
 
