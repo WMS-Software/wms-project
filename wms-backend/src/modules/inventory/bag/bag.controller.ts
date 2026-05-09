@@ -26,7 +26,7 @@ export class BagController {
     async cancellBag(
         @Param('barcode') barcode: string,
     ) {
-        return this.bagservice.cancellBag(barcode);
+        return this.bagservice.cancelBag(barcode);
     }
 
     @Patch(':barcode/dispatch')

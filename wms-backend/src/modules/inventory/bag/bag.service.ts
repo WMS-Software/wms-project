@@ -156,11 +156,11 @@ export class BagService {
 
       const rack = await this.getRack(manager,rackId);
 
-      if(rack.status === 'FULL') {
+      if(rack.status === RackStatus.full) {
         throw new BadRequestException('Rack is full');
       }
 
-      if(rack.status === 'BLOCKED') {
+      if(rack.status === RackStatus.blocked) {
         throw new BadRequestException('Rack is blocked');
       }
 
@@ -183,7 +183,7 @@ export class BagService {
 
   }
 
-  async cancellBag(barcode:string) {
+  async cancelBag(barcode:string) {
     return await this.dataSource.transaction(async (manager) => {
 
       const bag = await this.getBag(manager,barcode);
@@ -224,14 +224,15 @@ export class BagService {
       if(bag.status === BagStatus.dispatched) {
         throw new BadRequestException('Bag is already dispatched');
       }
-
-      if(bag.status !== BagStatus.pending) {
-        throw new BadRequestException('Pending bag cannot be dispatched');
-      }
-
+      
       if(!bag.rackId) {
         throw new BadRequestException('Bag is not assigned to any rack');
       }
+
+      if(bag.status !== BagStatus.stored) {
+        throw new BadRequestException('Only stored bags can be dispatched');
+      }
+
 
       const rack = await this.getRack(manager,bag.rackId);
 

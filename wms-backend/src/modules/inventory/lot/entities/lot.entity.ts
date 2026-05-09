@@ -44,7 +44,7 @@ export class Lot {
   @UpdateDateColumn()
     updatedAt!: Date;
 
-  @Column()
+  @Column({unique : true})
   inwardId?: string;
 
   // @ManyToOne(() => Inward)

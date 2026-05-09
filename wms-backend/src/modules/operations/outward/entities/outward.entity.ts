@@ -5,6 +5,6 @@ import { Entity, PrimaryGeneratedColumn } from 'typeorm';
 export class Outward {
 
   @PrimaryGeneratedColumn()
-  id: number;
+  id !: number;
 
 }

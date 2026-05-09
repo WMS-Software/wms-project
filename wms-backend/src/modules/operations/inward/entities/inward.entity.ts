@@ -19,12 +19,18 @@ export class Inward {
   @Column()
   customerId!: string;
 
+  @Column({ nullable: true })
+  lotId !: string;
+
   @ManyToOne(() => Customer)
   @JoinColumn({ name: 'customerId' })
   customer!: Customer;
 
   @Column({ type: 'timestamp' })
   date!: Date;
+
+  @Column({default : false})
+  isConfirmed!: boolean;
 
   @CreateDateColumn()
   createdAt!: Date;

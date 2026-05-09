@@ -109,9 +109,6 @@ export class LotLocationService {
   rackId: string
 ) {
 
-
-    
-
   const qr = this.dataSource.createQueryRunner();
 
   await qr.connect();
@@ -315,6 +312,5 @@ async markRackEmpty(rackId: string): Promise<void> {
     rack.status = RackStatus.empty;
 
     await this.rackRepo.save(rack);
-}
 }
 }

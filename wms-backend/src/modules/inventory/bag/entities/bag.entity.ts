@@ -59,4 +59,7 @@ export class Bag {
   @Column({nullable: true})
   rackId ?: string;
 
+  @Column({type: 'timestamp'})
+  scannedAt ?: Date;
+
 }
