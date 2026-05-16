@@ -36,7 +36,9 @@ export class RackService {
                             if(!chamber){
                                 throw new NotFoundException('chamber not found');
                             }
-                
+                            // only for debbuging
+                            console.log('chamberId:', chamberId);
+
                             const rack = this.rackRepo.create({
                                 ...dto, chamberId
                         })

@@ -13,6 +13,8 @@ import { ChamberModule } from './modules/inventory/chamber/chamber.module';
 import { CustomerModule } from './modules/partner/customer/customer.module';
 import { InwardModule } from './modules/operations/inward/inward.module';
 import { OutwardModule } from './modules/operations/outward/outward.module';
+import { LotModule } from './modules/inventory/lot/lot.module';
+import { InwardConfirmModule } from './modules/operations/inward-confirm/inward-confirm.module';
 
 
 @Module({
@@ -29,6 +31,7 @@ import { OutwardModule } from './modules/operations/outward/outward.module';
     // inventory modules
     BagModule,
     RackModule,
+    LotModule,
     LotLocationModule,
     WarehouseModule,
     LevelModule,
@@ -36,6 +39,7 @@ import { OutwardModule } from './modules/operations/outward/outward.module';
 
     // operations module
     InwardModule,
+    InwardConfirmModule,
     OutwardModule,
     
   ],

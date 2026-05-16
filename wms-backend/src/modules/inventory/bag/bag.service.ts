@@ -7,6 +7,7 @@ import { BagStatus } from './entities/bag_status.enum';
 import { Rack } from '../rack/entities/rack.entity';
 import { Lot } from '../lot/entities/lot.entity';
 import { RackStatus } from '../rack/entities/rack_status.enum';
+import { LotLocationService } from '../lot-location/lot-location.service';
 
 @Injectable()
 export class BagService {
@@ -22,6 +23,8 @@ export class BagService {
 
     @InjectRepository(Lot)
     private lotRepository: Repository<Lot>,
+
+    public lotLocationService : LotLocationService,
 
     private dataSource: DataSource,
   ) {}
@@ -168,14 +171,24 @@ export class BagService {
       //   throw new BadRequestException('Rack is full');
       // }
 
-      rack.currentBags += 1;
+      // console.log('before', rack.currentBags);
+      // rack.currentBags += 1;
+      // console.log('after', rack.currentBags);
+
+
 
 
       bag.status = BagStatus.stored;
       bag.rackId = rackId;
+      bag.scannedAt = new Date();
 
-      await rackRepo.save(rack);
+      // await rackRepo.save(rack);
       await bagRepo.save(bag);
+
+      await this.lotLocationService.syncRackOccupancy(
+   manager,
+   new Set([rackId])
+)
 
       return bag;
 
@@ -240,19 +253,24 @@ export class BagService {
         throw new BadRequestException('Rack has no bag to dispatch');
       }
 
-      rack.currentBags -= 1;
+      // rack.currentBags -= 1;
 
-      if(rack.currentBags === 0) {
-        rack.status = RackStatus.empty;
-      } else {
-        rack.status = RackStatus.available;
-      }
+      // if(rack.currentBags === 0) {
+      //   rack.status = RackStatus.empty;
+      // } else {
+      //   rack.status = RackStatus.available;
+      // }
 
       bag.status = BagStatus.dispatched;
       bag.dispatchedAt = new Date();
 
-      await manager.save(rack);
+      // await manager.save(rack);
       await manager.save(bag);
+
+  await this.lotLocationService.syncRackOccupancy(
+   manager,
+   new Set([rack.id])
+)
 
       return bag;
 

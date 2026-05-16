@@ -4,13 +4,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ConfirmPutawayDto } from './dto/inward-confirm.dto';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Inward } from '../inward/entities/inward.entity';
 import { Rack } from 'src/modules/inventory/rack/entities/rack.entity';
 import { Bag } from 'src/modules/inventory/bag/entities/bag.entity';
 import { BagStatus } from 'src/modules/inventory/bag/entities/bag_status.enum';
 import { RackStatus } from 'src/modules/inventory/rack/entities/rack_status.enum';
+import { LotLocationService } from 'src/modules/inventory/lot-location/lot-location.service';
 
 @Injectable()
 export class InwardConfirmService {
@@ -25,6 +26,8 @@ export class InwardConfirmService {
 
     @InjectRepository(Rack)
     private rackRepo: Repository<Rack>,
+
+    private lotLocationService: LotLocationService,
   ) {}
 
   private async getInward(manager: any, inwardId: string) {
@@ -197,20 +200,45 @@ export class InwardConfirmService {
           bag.rackId = receiver.rackId;
         }
 
-        if (donorRack.currentBags < moveQty) {
-          throw new BadRequestException(
-            `Invalid donor rack count for ${donor.rackId}`,
-          );
-        }
+        // if (donorRack.currentBags < moveQty) {
+        //   throw new BadRequestException(
+        //     `Invalid donor rack count for ${donor.rackId}`,
+        //   );
+        // }
 
-        donorRack.currentBags -= moveQty;
-        receiverRack.currentBags += moveQty;
+        // donorRack.currentBags -= moveQty;
+        // receiverRack.currentBags += moveQty;
 
-        if (donorRack.currentBags === 0) {
-          donorRack.status = RackStatus.empty;
-        }
+        // if (donorRack.currentBags === 0) {
+        //   donorRack.status = RackStatus.empty;
+        // }
 
         await manager.save(slice);
+
+        // update lot mapping
+        await this.lotLocationService.removeLotFromRack(
+          manager,
+          lotId,
+          donorRack.id,
+          moveQty,
+        );
+
+        await this.lotLocationService.commitLotDistribution(
+          manager,
+          lotId,
+          receiverRack.id,
+          moveQty,
+        );
+
+        // update rack mapping
+        await this.lotLocationService.syncRackOccupancy(
+          manager,
+          new Set([donorRack.id]),
+        );
+        await this.lotLocationService.syncRackOccupancy(
+          manager,
+          new Set([receiverRack.id]),
+        );
 
         receiver.qty -= moveQty;
         i += moveQty;
@@ -221,7 +249,7 @@ export class InwardConfirmService {
       }
     }
 
-    await manager.save(Array.from(rackMap.values()));
+    // await manager.save(Array.from(rackMap.values()));
 
     const remaining = receivers.reduce((s, r) => s + r.qty, 0);
     if (remaining !== 0) {
@@ -249,71 +277,133 @@ export class InwardConfirmService {
   }
 
   async confirmPutaway(inwardId: string, dto: ConfirmPutawayDto) {
-    return await this.dataSource.transaction(async (manager) => {
-      // it check is adjusment needed ?
-      const hasAdjustments = dto.adjustments && dto.adjustments.length > 0;
+    try {
+      return await this.dataSource.transaction(async (manager) => {
+        console.log(dto);
+        // it check is adjusment needed ?
+        const hasAdjustments = dto.adjustments && dto.adjustments.length > 0;
 
-      const inward = await this.getInward(manager, inwardId);
-      if (inward.isConfirmed) {
-        throw new BadRequestException('Inward already confirmed');
-      }
-
-      if (!inward.lotId) {
-        throw new BadRequestException('Lot not linked to inward');
-      }
-
-      const lotId = inward.lotId;
-
-      // fetching all the bags of inward lot
-      const bags = await this.getStoredBags(manager, lotId);
-
-      // checking every bag must have rackId
-      for (const bag of bags) {
-        if (!bag.rackId) {
-          throw new BadRequestException('Bag without rack found');
+        const inward = await this.getInward(manager, inwardId);
+        if (inward.isConfirmed) {
+          throw new BadRequestException('Inward already confirmed');
         }
-      }
 
-      const currentMap = this.buildCurrentMap(bags);
-      console.log('Current', Object.fromEntries(currentMap));
+        if (!inward.lotId) {
+          throw new BadRequestException('Lot not linked to inward');
+        }
 
-      // if no adjustment needed its isconfirmed = true
-      if (!hasAdjustments) {
-        // 🔥 Just confirm current state as final truth
+        const lotId = inward.lotId;
 
-        const rackIds = new Set(currentMap.keys());
+        // fetching all the bags of inward lot
+        const bags = await this.getStoredBags(manager, lotId);
 
-        await this.resyncRackCounts(manager, lotId, rackIds);
-        inward.isConfirmed = true;
-        await manager.save(inward);
+        // checking every bag must have rackId
+        for (const bag of bags) {
+          if (!bag.rackId) {
+            throw new BadRequestException('Bag without rack found');
+          }
+        }
 
-        return {
-          message: 'Confirmed as-is (no adjustment applied)',
-        };
-      }
+        const currentMap = this.buildCurrentMap(bags);
+        console.log('Current', Object.fromEntries(currentMap));
 
-      const targetMap = this.buildTargetMap(dto);
-      console.log('Target:', Object.fromEntries(targetMap));
+        for (const [rackId, qty] of currentMap) {
 
-      // validate total bags
+   await this.lotLocationService.upsertLotDistribution(
+      manager,
+      lotId,
+      rackId,
+      qty,
+   );
+}
 
-      const totalCurrent = bags.length;
+        // if no adjustment needed its isconfirmed = true
+        if (!hasAdjustments) {
+          // 🔥 Just confirm current state as final truth
 
-      const totalTarget = dto.adjustments.reduce(
-        (sum, a) => sum + a.actualQty,
-        0,
-      );
+          const rackIds = new Set(currentMap.keys());
 
-      if (totalCurrent !== totalTarget) {
-        throw new BadRequestException('Total quantity mismatch');
-      }
+          for (const [rackId, qty] of currentMap) {
+            await this.lotLocationService.upsertLotDistribution(
+              manager,
+              lotId,
+              rackId,
+              qty,
+            );
+          }
 
-      const diffMap = this.calculateDiff(currentMap, targetMap);
-      console.log('Difference', Object.fromEntries(diffMap));
+          await this.resyncRackCounts(manager, lotId, rackIds);
+          inward.isConfirmed = true;
+          await manager.save(inward);
 
-      const hasMovement = Array.from(diffMap.values()).some((v) => v !== 0);
+          return {
+            message: 'Confirmed as-is (no adjustment applied)',
+          };
+        }
 
-      if (!hasMovement) {
+        const targetMap = this.buildTargetMap(dto);
+        console.log('Target:', Object.fromEntries(targetMap));
+
+        console.log('Target:', Object.fromEntries(targetMap));
+
+        // validate total bags
+
+        const totalCurrent = bags.length;
+
+        const totalTarget = dto.adjustments.reduce(
+          (sum, a) => sum + a.actualQty,
+          0,
+        );
+
+        if (totalCurrent !== totalTarget) {
+          throw new BadRequestException('Total quantity mismatch');
+        }
+
+        const diffMap = this.calculateDiff(currentMap, targetMap);
+        console.log('Difference', Object.fromEntries(diffMap));
+
+        const hasMovement = Array.from(diffMap.values()).some((v) => v !== 0);
+
+        if (!hasMovement) {
+          const allRacks = new Set([...currentMap.keys(), ...targetMap.keys()]);
+
+          for (const [rackId, qty] of targetMap) {
+            await this.lotLocationService.upsertLotDistribution(
+              manager,
+              lotId,
+              rackId,
+              qty,
+            );
+          }
+
+          await this.resyncRackCounts(manager, lotId, allRacks);
+
+          inward.isConfirmed = true;
+          await manager.save(inward);
+
+          return {
+            message: 'No movement required, confirmed successfully',
+          };
+        }
+
+        // seprate donar rack and receiver rack
+
+        const donors: { rackId: string; qty: number }[] = [];
+        const receivers: { rackId: string; qty: number }[] = [];
+
+        for (const [rackId, value] of diffMap) {
+          if (value < 0) {
+            donors.push({ rackId, qty: Math.abs(value) });
+          } else if (value > 0) {
+            receivers.push({ rackId, qty: value });
+          }
+        }
+
+        console.log('Donors', donors);
+        console.log('Receiver', receivers);
+
+        await this.moveBags(manager, lotId, donors, receivers);
+
         const allRacks = new Set([...currentMap.keys(), ...targetMap.keys()]);
 
         await this.resyncRackCounts(manager, lotId, allRacks);
@@ -322,38 +412,13 @@ export class InwardConfirmService {
         await manager.save(inward);
 
         return {
-          message: 'No movement required, confirmed successfully',
+          message: 'Putaway confirmed successfully',
         };
-      }
+      });
+    } catch (error) {
+      console.error(error);
 
-      // seprate donar rack and receiver rack
-
-      const donors: { rackId: string; qty: number }[] = [];
-      const receivers: { rackId: string; qty: number }[] = [];
-
-      for (const [rackId, value] of diffMap) {
-        if (value < 0) {
-          donors.push({ rackId, qty: Math.abs(value) });
-        } else if (value > 0) {
-          receivers.push({ rackId, qty: value });
-        }
-      }
-
-      console.log('Donors', donors);
-      console.log('Receiver', receivers);
-
-      await this.moveBags(manager, lotId, donors, receivers);
-
-      const allRacks = new Set([...currentMap.keys(), ...targetMap.keys()]);
-
-      await this.resyncRackCounts(manager, lotId, allRacks);
-
-      inward.isConfirmed = true;
-      await manager.save(inward);
-
-      return {
-        message: 'Putaway confirmed successfully',
-      };
-    });
+      throw error;
+    }
   }
 }

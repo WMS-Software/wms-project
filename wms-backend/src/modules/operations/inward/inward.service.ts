@@ -10,6 +10,7 @@ import { DataSource, Repository } from 'typeorm';
 import { createInwardDto } from './dto/createInwardDto';
 import { Inward } from './entities/inward.entity';
 import { InwardStatus } from './entities/inward_status.enum';
+import { Lot } from 'src/modules/inventory/lot/entities/lot.entity';
 
 @Injectable()
 export class InwardService {
@@ -56,20 +57,47 @@ export class InwardService {
     return inward;
   }
 
-  async createInward(dto: createInwardDto) {
+  async createInward(dto: createInwardDto, customerId: string, warehouseId: string  ) {
     return await this.dataSource.transaction(async (manager) => {
-      const customer = await this.getCustomer(manager, dto.customerId);
-      const warehouse = await this.getWarehouse(manager, dto.warehouseId);
+      const customer = await this.getCustomer(manager, customerId);
+      const warehouse = await this.getWarehouse(manager,warehouseId);
 
       const inward = manager.create(Inward, {
-        customerId: dto.customerId,
-        warehouseId: dto.warehouseId,
+        customerId: customerId,
+        warehouseId: warehouseId,
         date: dto.date || new Date(),
         status: InwardStatus.created,
       });
 
       return await manager.save(inward);
     });
+  }
+
+  async linkLot(inwardId: string, lotId: string) {
+    return this.dataSource.transaction(async (manager)=>{
+      // validate inward
+      const inward = await this.getInward(manager,inwardId);
+
+      if(inward.lotId) {
+        throw new BadRequestException('Lot already linked to inward')
+      }
+
+      // validate lot
+      const lot = await manager.getRepository(Lot).findOne({
+      where: { id: lotId }
+    });
+
+    if (!lot) {
+      throw new NotFoundException('Lot not found');
+    }
+
+    inward.lotId = lot.id;
+
+    await manager.save(inward);
+
+    return inward;
+      
+    })
   }
 
   async getInwardById(inwardId: string) {

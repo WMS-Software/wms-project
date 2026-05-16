@@ -1,10 +1,24 @@
-
+import { Type } from 'class-transformer';
+import { IsArray, IsInt, IsOptional, IsString, IsUUID, Min, ValidateNested } from 'class-validator';
 
 export class RackAdjustmentDto {
-    rackId !: string;
-    actualQty !: number;
+  @IsUUID()
+  @IsString()
+  rackId!: string;
+
+  @IsInt()
+  @Min(0)
+  actualQty!: number;
 }
 
 export class ConfirmPutawayDto {
-    adjustments !: RackAdjustmentDto[];
+
+      @IsOptional()
+
+  @IsArray()
+
+  @ValidateNested({ each: true })
+
+  @Type(() => RackAdjustmentDto)
+  adjustments!: RackAdjustmentDto[];
 }

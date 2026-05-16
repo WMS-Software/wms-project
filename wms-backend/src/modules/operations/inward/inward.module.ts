@@ -6,9 +6,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Customer } from 'src/modules/partner/customer/entities/customer.entity';
 import { Warehouse } from 'src/modules/inventory/warehouse/entities/warehouse.entity';
 import { Inward } from './entities/inward.entity';
+import { Lot } from 'src/modules/inventory/lot/entities/lot.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Customer,Warehouse,Inward])],
+  imports: [TypeOrmModule.forFeature([Customer,Warehouse,Inward, Lot])],
   controllers: [InwardController],
   providers: [InwardService],
   exports: [InwardService],

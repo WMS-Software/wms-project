@@ -1,7 +1,9 @@
+import { IsDateString, IsOptional } from "class-validator";
 
 
 export class createInwardDto {
-    customerId !: string;
-    warehouseId !: string;
+
+    @IsOptional()          // field can be omitted
+    @IsDateString() 
     date ?: Date
 }

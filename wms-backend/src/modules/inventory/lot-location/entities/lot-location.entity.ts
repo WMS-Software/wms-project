@@ -23,6 +23,9 @@ export class LotLocation{
   @JoinColumn({name: 'rackId'})
   rack!: Rack;
 
+  @Column({type: 'integer', default: 0})
+  quantity !: number
+
   @CreateDateColumn()
   createdAt!: Date;
 

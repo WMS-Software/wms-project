@@ -9,6 +9,7 @@ import { LotLocation } from './entities/lot-location.entity';
 @Module({
   imports: [TypeOrmModule.forFeature([Rack,Lot,LotLocation])],
   providers: [LotLocationService],
-  controllers: [LotLocationController]
+  controllers: [LotLocationController],
+  exports: [LotLocationService]
 })
 export class LotLocationModule {}
