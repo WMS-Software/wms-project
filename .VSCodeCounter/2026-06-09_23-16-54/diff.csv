@@ -1,0 +1,9 @@
+"filename", "language", "TypeScript", "comment", "blank", "total"
+"c:\Users\kunal\Desktop\perojecccttt\wms-project\wms-backend\src\modules\operations\outward\dto\dispatchSession.dto.ts", "TypeScript", 24, 0, 5, 29
+"c:\Users\kunal\Desktop\perojecccttt\wms-project\wms-backend\src\modules\operations\outward\dto\scan_bag.dto.ts", "TypeScript", 6, 0, 1, 7
+"c:\Users\kunal\Desktop\perojecccttt\wms-project\wms-backend\src\modules\operations\outward\entities\dispatchSession.entity.ts", "TypeScript", 35, 0, 13, 48
+"c:\Users\kunal\Desktop\perojecccttt\wms-project\wms-backend\src\modules\operations\outward\entities\dispatch_scans.entity.ts", "TypeScript", 13, 0, 5, 18
+"c:\Users\kunal\Desktop\perojecccttt\wms-project\wms-backend\src\modules\operations\outward\entities\outward.entity.ts", "TypeScript", 7, 0, -2, 5
+"c:\Users\kunal\Desktop\perojecccttt\wms-project\wms-backend\src\modules\operations\outward\entities\outward_Status.enum.ts", "TypeScript", 6, 0, 0, 6
+"c:\Users\kunal\Desktop\perojecccttt\wms-project\wms-backend\src\modules\operations\outward\outward.service.ts", "TypeScript", 124, 2, 28, 154
+"Total", "-", 215, 2, 50, 267

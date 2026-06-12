@@ -1,0 +1,39 @@
+Date : 2026-06-09 23:16:54
+Directory : c:\Users\kunal\Desktop\perojecccttt\wms-project
+Total : 7 files,  215 codes, 2 comments, 50 blanks, all 267 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| TypeScript |          7 |        215 |          2 |         50 |        267 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++-------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                                          | files      | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                                             |          7 |        215 |          2 |         50 |        267 |
+| wms-backend                                                                                                                   |          7 |        215 |          2 |         50 |        267 |
+| wms-backend\src                                                                                                               |          7 |        215 |          2 |         50 |        267 |
+| wms-backend\src\modules                                                                                                       |          7 |        215 |          2 |         50 |        267 |
+| wms-backend\src\modules\operations                                                                                            |          7 |        215 |          2 |         50 |        267 |
+| wms-backend\src\modules\operations\outward                                                                                    |          7 |        215 |          2 |         50 |        267 |
+| wms-backend\src\modules\operations\outward (Files)                                                                            |          1 |        124 |          2 |         28 |        154 |
+| wms-backend\src\modules\operations\outward\dto                                                                                |          2 |         30 |          0 |          6 |         36 |
+| wms-backend\src\modules\operations\outward\entities                                                                           |          4 |         61 |          0 |         16 |         77 |
++-------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                                                                      | language   | code       | comment    | blank      | total      |
++-------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| c:\Users\kunal\Desktop\perojecccttt\wms-project\wms-backend\src\modules\operations\outward\dto\dispatchSession.dto.ts         | TypeScript |         24 |          0 |          5 |         29 |
+| c:\Users\kunal\Desktop\perojecccttt\wms-project\wms-backend\src\modules\operations\outward\dto\scan_bag.dto.ts                | TypeScript |          6 |          0 |          1 |          7 |
+| c:\Users\kunal\Desktop\perojecccttt\wms-project\wms-backend\src\modules\operations\outward\entities\dispatchSession.entity.ts | TypeScript |         35 |          0 |         13 |         48 |
+| c:\Users\kunal\Desktop\perojecccttt\wms-project\wms-backend\src\modules\operations\outward\entities\dispatch_scans.entity.ts  | TypeScript |         13 |          0 |          5 |         18 |
+| c:\Users\kunal\Desktop\perojecccttt\wms-project\wms-backend\src\modules\operations\outward\entities\outward.entity.ts         | TypeScript |          7 |          0 |         -2 |          5 |
+| c:\Users\kunal\Desktop\perojecccttt\wms-project\wms-backend\src\modules\operations\outward\entities\outward_Status.enum.ts    | TypeScript |          6 |          0 |          0 |          6 |
+| c:\Users\kunal\Desktop\perojecccttt\wms-project\wms-backend\src\modules\operations\outward\outward.service.ts                 | TypeScript |        124 |          2 |         28 |        154 |
+| Total                                                                                                                         |            |        215 |          2 |         50 |        267 |
++-------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
