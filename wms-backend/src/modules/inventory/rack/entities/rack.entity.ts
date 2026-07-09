@@ -34,7 +34,7 @@ export class Rack {
   @CreateDateColumn()
     createdAt!: Date;
       
-  @Column()
+  @Column({nullable : true})
     capacity!: number;
 
   @Column({default:0})

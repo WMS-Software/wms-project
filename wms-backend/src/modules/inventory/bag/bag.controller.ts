@@ -6,9 +6,9 @@ import { BagService } from './bag.service';
 export class BagController {
     constructor(private readonly bagservice : BagService) {}
 
-    @Post('generate') 
+    @Post('generate/:lotId') 
     async generateBag (
-        @Body('lotId') lotId : string,
+        @Param('lotId') lotId : string,
         @Body('qty') qty: number,
     ) {
         return this.bagservice.generateBag(lotId,qty)
@@ -26,7 +26,7 @@ export class BagController {
     async cancellBag(
         @Param('barcode') barcode: string,
     ) {
-        return this.bagservice.cancellBag(barcode);
+        return this.bagservice.cancelBag(barcode);
     }
 
     @Patch(':barcode/dispatch')

@@ -14,7 +14,7 @@ export class Lot {
   @PrimaryGeneratedColumn('uuid')
   id !: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true})
   lotCode !: string;
 
   @Column()
@@ -46,7 +46,7 @@ export class Lot {
   @UpdateDateColumn()
     updatedAt!: Date;
 
-  @Column()
+  @Column({unique : true})
   inwardId?: string;
 
   // @ManyToOne(() => Inward)
