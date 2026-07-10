@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { DispatchScanStatus } from "./dispatchScan_Status.enum";
 
 
 @Entity('dispatch_scans')
@@ -15,6 +16,13 @@ export class DispatchScan {
 
   @Column()
   barcode!: string;
+
+  @Column({
+      type: 'enum',
+  enum: DispatchScanStatus,
+  default: DispatchScanStatus.active,
+  })
+  status!: DispatchScanStatus
 
   @CreateDateColumn()
   scannedAt!: Date;
