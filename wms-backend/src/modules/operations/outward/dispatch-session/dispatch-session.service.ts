@@ -23,7 +23,7 @@ import { DispatchScanStatus } from './entities/dispatchScan_Status.enum';
 import { RackStatus } from 'src/modules/inventory/rack/entities/rack_status.enum';
 
 @Injectable()
-export class DispatchSessionService  {
+export class DispatchSessionService {
   constructor(
     @InjectRepository(Lot)
     private lotRepo: Repository<Lot>,
@@ -462,16 +462,12 @@ export class DispatchSessionService  {
       const session = await this.getSession(manager, sessionId);
 
       const dispatchScans = await this.getAllDispatchScans(manager, session.id);
-      const activeScans =
-dispatchScans.filter(
-    scan =>
-        scan.status === DispatchScanStatus.active,
-);
-const cancelledScans =
-dispatchScans.filter(
-    scan =>
-        scan.status === DispatchScanStatus.cancelled,
-);
+      const activeScans = dispatchScans.filter(
+        (scan) => scan.status === DispatchScanStatus.active,
+      );
+      const cancelledScans = dispatchScans.filter(
+        (scan) => scan.status === DispatchScanStatus.cancelled,
+      );
       const scannedQty = dispatchScans.length;
 
       return {
@@ -561,7 +557,7 @@ dispatchScans.filter(
           throw new BadRequestException('Rack bag count cannot be negative.');
         }
 
-        if(rack.currentBags === 0){
+        if (rack.currentBags === 0) {
           rack.isBusy = false;
           rack.status = RackStatus.available;
         }
@@ -598,6 +594,10 @@ dispatchScans.filter(
       for (const bag of bags) {
         await this.markBagAsDispatched(manager, bag);
       }
+
+      // 8. Save Dispatch Summary
+      session.dispatchedBags = bags.length;
+      session.completedAt = new Date();
 
       // 9. Complete Session
       await this.updateSessionStatus(manager, session, outwardStatus.completed);

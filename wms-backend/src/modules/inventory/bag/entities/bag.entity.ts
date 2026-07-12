@@ -62,4 +62,6 @@ export class Bag {
   @Column({type: 'timestamp', nullable: true})
   scannedAt ?: Date;
 
+  
+
 }
