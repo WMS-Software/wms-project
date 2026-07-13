@@ -34,6 +34,9 @@ export class DispatchSession {
   @Column('int',{default: 0})
   scannedQty!: number
 
+  @Column({ default: 0, }) 
+  dispatchedBags!: number;
+
   @CreateDateColumn()
   createdAt!: Date;
 
