@@ -50,24 +50,19 @@ export class OutwardTransactionService {
   }
 
   // ⭐ 7 ADD HERE
-private async getBagsByIds(
-  manager: EntityManager,
-  bagIds: string[],
-) {
-  const bags = await manager.find(Bag, {
-    where: bagIds.map((id) => ({
-      id,
-    })),
-  });
+  private async getBagsByIds(manager: EntityManager, bagIds: string[]) {
+    const bags = await manager.find(Bag, {
+      where: bagIds.map((id) => ({
+        id,
+      })),
+    });
 
-  if (bags.length !== bagIds.length) {
-    throw new NotFoundException(
-      'One or more bags were not found.',
-    );
+    if (bags.length !== bagIds.length) {
+      throw new NotFoundException('One or more bags were not found.');
+    }
+
+    return bags;
   }
-
-  return bags;
-}
 
   private ensureAllDispatchSessionsCompleted(
     dispatchSessions: DispatchSession[],
@@ -134,28 +129,25 @@ private async getBagsByIds(
   //     }
   //   }
 
-private async generateOutwardNumber(
-  manager: EntityManager,
-): Promise<string> {
+  private async generateOutwardNumber(manager: EntityManager): Promise<string> {
+    const lastTransaction = await manager
+      .getRepository(OutwardTransaction)
+      .createQueryBuilder('outward')
+      .orderBy('outward.createdAt', 'DESC')
+      .getOne();
 
-  const lastTransaction = await manager
-    .getRepository(OutwardTransaction)
-    .createQueryBuilder('outward')
-    .orderBy('outward.createdAt', 'DESC')
-    .getOne();
+    let nextSequence = 1;
 
-  let nextSequence = 1;
+    if (lastTransaction) {
+      const lastNumber = Number(
+        lastTransaction.outwardNumber.replace('OUT-', ''),
+      );
 
-  if (lastTransaction) {
-    const lastNumber = Number(
-      lastTransaction.outwardNumber.replace('OUT-', ''),
-    );
+      nextSequence = lastNumber + 1;
+    }
 
-    nextSequence = lastNumber + 1;
+    return `OUT-${String(nextSequence).padStart(6, '0')}`;
   }
-
-  return `OUT-${String(nextSequence).padStart(6, '0')}`;
-}
 
   private async createOutwardItems(
     manager: EntityManager,
@@ -278,4 +270,65 @@ private async generateOutwardNumber(
       return outwardTransaction;
     });
   }
+
+  async getAllOutwardTransactions() {
+    const outwardTransactions = await this.dataSource
+      .getRepository(OutwardTransaction)
+      .find({
+        relations: {
+          customer: true,
+          warehouse: true,
+        },
+        order: {
+          createdAt: 'DESC',
+        },
+      });
+
+    return outwardTransactions;
+  }
+
+  async getOutwardTransactionById(id: string) {
+  const outwardTransaction = await this.dataSource
+    .getRepository(OutwardTransaction)
+    .findOne({
+      where: {
+        id,
+      },
+      relations: {
+        customer: true,
+        warehouse: true,
+      },
+    });
+
+  if (!outwardTransaction) {
+    throw new NotFoundException(
+      'Outward transaction not found.',
+    );
+  }
+
+  return outwardTransaction;
+}
+
+async getOutwardTransactionItems(
+  outwardTransactionId: string,
+) {
+  const outwardItems = await this.dataSource
+    .getRepository(OutwardItem)
+    .find({
+      where: {
+        outwardTransactionId,
+      },
+      relations: {
+        bag: true,
+        lot: true,
+        rack: true,
+      },
+      order: {
+        createdAt: 'ASC',
+      },
+    });
+
+  return outwardItems;
+}
+
 }
